@@ -1,0 +1,33 @@
+from rdkit import Chem
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Create a molecule from a SMILES string
+smiles = "CC(=O)Oc1ccccc1C(=O)O"
+mol = Chem.MolFromSmiles(smiles)
+
+# Create a graph
+G = nx.Graph()
+
+# Add nodes and attributes
+for atom in mol.GetAtoms():
+    atom_idx = atom.GetIdx()
+    element = atom.GetSymbol()
+    G.add_node(atom_idx, element=element)
+
+# Add edges and attributes
+for bond in mol.GetBonds():
+    begin_atom = bond.GetBeginAtomIdx()
+    end_atom = bond.GetEndAtomIdx()
+    bond_type = str(bond.GetBondType())
+    G.add_edge(begin_atom, end_atom, bond_type=bond_type)
+
+# Visualize the graph
+pos = nx.spring_layout(G, seed=42)  # Positions for visualization
+nx.draw(G, pos, with_labels=True, node_size=1000, node_color="lightblue", font_weight="bold", font_size=10)
+edge_labels = nx.get_edge_attributes(G, "bond_type")
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8)
+
+plt.show()
+
+# Perform analysis or other tasks
