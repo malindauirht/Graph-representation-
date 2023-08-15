@@ -1,0 +1,45 @@
+from rdkit import Chem
+import numpy as np
+import scipy.sparse
+
+# Create a molecule from a SMILES string
+smiles = "CC(=O)Oc1ccccc1C(=O)O"
+mol = Chem.MolFromSmiles(smiles)
+
+# Create a graph
+G = nx.Graph()
+
+# Add nodes and attributes
+for atom in mol.GetAtoms():
+    atom_idx = atom.GetIdx()
+    element = atom.GetSymbol()
+    G.add_node(atom_idx, element=element)
+
+# Add edges and attributes
+for bond in mol.GetBonds():
+    begin_atom = bond.GetBeginAtomIdx()
+    end_atom = bond.GetEndAtomIdx()
+    bond_type = str(bond.GetBondType())
+    G.add_edge(begin_atom, end_atom, bond_type=bond_type)
+
+# Generate adjacency matrix
+adjacency_matrix = nx.to_numpy_array(G)
+
+# List of chemical elements
+element_list = ["H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar"]
+
+# Generate node feature matrix
+num_nodes = G.number_of_nodes()
+node_feature_matrix = np.zeros((num_nodes, len(element_list)))
+for node, data in G.nodes(data=True):
+    element = data['element']
+    element_idx = element_list.index(element)
+    node_feature_matrix[node][element_idx] = 1
+
+# Print adjacency matrix and node feature matrix
+print("Adjacency Matrix:")
+print(adjacency_matrix)
+
+print("\nNode Feature Matrix:")
+print(node_feature_matrix)
+
